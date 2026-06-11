@@ -1,0 +1,52 @@
+###list of scripts for cleaning in correct order
+
+##crop the record to start/finish marks (exclude noise before and after these marks)
+##find bad channels and rewrite them into a table (around 3h)
+##check anatomy name to be correct
+##
+crop_find_bads_edit_ch_tab_copy_anat_bids.ipynb
+
+##Run MNE pipeline scripts steps #1 and #4  with data check and freq filtering (01 = 32m, 04 =35m)
+##
+mne_bids_pipeline --config=/scratch2/alinat/project/alinacode/pipeline_prep_eyes-closed_run1/MNE_config.py --steps=preprocessing/_01_data_quality
+mne_bids_pipeline --config=/scratch2/alinat/project/alinacode/pipeline_prep_eyes-closed_run1/MNE_config.py --steps=preprocessing/_04_frequency_filter
+
+## make a custom power line cleaning with different script (22m)
+##
+powerline_cleaning.ipynb
+
+##Run MNE pipeline scripts steps #6 and #7 with fitting ICA and making epoch file (06a1 = 46h37m, 06a2 took 8h34m, 07 took 44m)
+##
+mne_bids_pipeline --config=/scratch2/alinat/project/alinacode/pipeline_prep_eyes-closed_run1/MNE_config.py --steps=preprocessing/_06a1_fit_ica
+mne_bids_pipeline --config=/scratch2/alinat/project/alinacode/pipeline_prep_eyes-closed_run1/MNE_config.py --steps=preprocessing/_06a2_find_ica_artifacts
+mne_bids_pipeline --config=/scratch2/alinat/project/alinacode/pipeline_prep_eyes-closed_run1/MNE_config.py --steps=preprocessing/_07_make_epochs
+
+##run a custom script for ICA bad component detection (31m)
+##
+IC_labelling.ipynb
+
+##Run MNE pipeline scripts steps #8 and #9 with removing bad IC and interpolating bad epochs (08a took 3h50m, 09 took 39h44m)
+##
+mne_bids_pipeline --config=/scratch2/alinat/project/alinacode/pipeline_prep_eyes-closed_run1/MNE_config.py --steps=preprocessing/_08a_apply_ica
+mne_bids_pipeline --config=/scratch2/alinat/project/alinacode/pipeline_prep_eyes-closed_run1/MNE_config.py --steps=preprocessing/_09_ptp_reject
+
+##make bad channels interpolation and make ad hoc cov noise matrix
+##bem surfaces and forward model (for individual and standard heads)
+##cleaning epoch object from epoch that out of resting periods
+##
+bem_fwd-model_inv.ipynb  
+epoch_marking.ipynb
+
+##check epoch again, mark epoch as bad during pause between conditions
+##filter epoch file to a specific freqs 
+##('delta' : [0.5, 4], 
+## 'theta': [4.01, 7.99],
+## 'alpha': [8, 12.99],
+## 'beta' : [13, 30],
+## 'gamma1': [30.01, 49],
+## 'gamma2': [51, 80],)
+##inverse model 
+##AEC for each freq band
+##dwPLI for each freq band
+##
+inv_band_matx.ipynb
